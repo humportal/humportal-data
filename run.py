@@ -14,12 +14,17 @@ ELEMENTS = STATS_URL.format("current/inverted-publisher/elements.json")
 ACTIVITIES = STATS_URL.format("current/inverted-publisher/activities.json")
 HUMANITARIAN = STATS_URL.format("current/inverted-publisher/humanitarian.json")
 FREQUENCY = BASE_URL.format("timeliness_frequency.csv")
+TIMELINESS_TIMELAG = BASE_URL.format("timeliness_timelag.csv")
 
 
 def get_source_data():
     r = requests.get(HUMANITARIAN_ANALYTICS)
     with open("cache/humanitarian_analytics.csv", 'w', encoding="utf-8") as humanitarian_analytics_csv:
         humanitarian_analytics_csv.write(r.text)
+
+    r = requests.get(TIMELINESS_TIMELAG)
+    with open("cache/timeliness_timelag.csv", 'w', encoding="utf-8") as timeliness_timelag_csv:
+        timeliness_timelag_csv.write(r.text)
 
     r = requests.get(FREQUENCY)
     frequency = {}
@@ -93,6 +98,7 @@ def generate_homepage_stats(analytics_publishers):
 
 def generate_signatory_data(analytics_publishers):
     publishers = []
+    timeliness_timelag = {}
     with open('cache/versions.json', 'r') as versions_json:
         versions = json.load(versions_json)
     with open('cache/codelist_values.json', 'r') as codelists_json:
@@ -105,6 +111,10 @@ def generate_signatory_data(analytics_publishers):
         activities = json.load(activities_json)
     with open('cache/humanitarian.json', 'r') as humanitarian_json:
         humanitarian = json.load(humanitarian_json)
+    with open("cache/timeliness_timelag.csv", 'r', encoding="utf-8") as timeliness_timelag_csv:
+        timeline_reader = csv.DictReader(timeliness_timelag_csv)
+        for item in timeline_reader:
+            timeliness_timelag.update({item['Publisher Registry Id']: item['Time lag']})
     with open('data/signatories.csv', 'r', encoding="utf-8") as signatories_csv:
         csvreader = csv.DictReader(signatories_csv)
         for row in csvreader:
@@ -139,7 +149,8 @@ def generate_signatory_data(analytics_publishers):
                 '203HumData': _203_hum_data,
                 'traceability': traceability,
                 'monthly': monthly,
-                'frequency': frequency.get(publisher_id)
+                'frequency': frequency.get(publisher_id),
+                'timeliness': timeliness_timelag.get(publisher_id, '')
             })
     with open('output/signatories.json', 'w') as jsonfile:
         json.dump(publishers, jsonfile)
