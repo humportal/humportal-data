@@ -5,8 +5,8 @@ import datetime
 
 import requests
 
-BASE_URL = "https://analytics.codeforiati.org/{}"
-STATS_URL = "https://stats.codeforiati.org/{}"
+BASE_URL = "https://dashboard.iatistandard.org/{}"
+STATS_URL = "https://dashboard.iatistandard.org/stats/{}"
 HUMANITARIAN_ANALYTICS = BASE_URL.format("humanitarian.csv")
 VERSIONS = STATS_URL.format("current/inverted-publisher/versions.json")
 CODELIST_VALUES = STATS_URL.format("current/inverted-publisher/codelist_values.json")
